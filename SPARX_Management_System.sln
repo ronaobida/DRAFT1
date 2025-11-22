@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11123.170 d18.0
+VisualStudioVersion = 18.0.11123.170
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SPARX_Management_System", "SPARX_Management_System\SPARX_Management_System.vbproj", "{AE9BA975-D98A-4084-88BC-A5E21967E934}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Sparx_Subscriber", "..\Sparx_Subscriber-main\Sparx_Subscriber\Sparx_Subscriber.vbproj", "{5AB1A34C-6907-BA2E-EC64-07C2ABAD7BAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{AE9BA975-D98A-4084-88BC-A5E21967E934}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE9BA975-D98A-4084-88BC-A5E21967E934}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE9BA975-D98A-4084-88BC-A5E21967E934}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5AB1A34C-6907-BA2E-EC64-07C2ABAD7BAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5AB1A34C-6907-BA2E-EC64-07C2ABAD7BAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5AB1A34C-6907-BA2E-EC64-07C2ABAD7BAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5AB1A34C-6907-BA2E-EC64-07C2ABAD7BAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

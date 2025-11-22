@@ -13,6 +13,7 @@ Partial Class sparxLogin
             MyBase.Dispose(disposing)
         End Try
     End Sub
+    Friend WithEvents LinkBtnLogin As LinkLabel
 
     'Required by the Windows Form Designer
     Private components As System.ComponentModel.IContainer
@@ -26,13 +27,8 @@ Partial Class sparxLogin
         SplitContainer1 = New SplitContainer()
         pnlWelcome = New PanelRound()
         lblWelcome = New Label()
-        btnAdmin = New Label()
-        btnSuperAdmin = New Label()
-        btnSubscriber = New Label()
         sparxLogo = New PictureBox()
         pnlLoginCard = New PanelRound()
-        LinkBtnLogin = New LinkLabel()
-        LblHAA = New Label()
         LinkBtnSignup = New LinkLabel()
         LblDHA = New Label()
         logo = New PictureBox()
@@ -46,8 +42,6 @@ Partial Class sparxLogin
         picShowHide = New PictureBox()
         txtPassword = New TextBox()
         line = New Label()
-        lnkAdminContact = New LinkLabel()
-        lblAccess = New Label()
         pnlEmail = New PanelRound()
         txtEmail = New TextBox()
         CType(SplitContainer1, ComponentModel.ISupportInitialize).BeginInit()
@@ -78,9 +72,6 @@ Partial Class sparxLogin
         ' 
         ' SplitContainer1.Panel2
         ' 
-        SplitContainer1.Panel2.Controls.Add(btnAdmin)
-        SplitContainer1.Panel2.Controls.Add(btnSuperAdmin)
-        SplitContainer1.Panel2.Controls.Add(btnSubscriber)
         SplitContainer1.Panel2.Controls.Add(sparxLogo)
         SplitContainer1.Panel2.Controls.Add(pnlLoginCard)
         SplitContainer1.Size = New Size(1481, 796)
@@ -103,52 +94,13 @@ Partial Class sparxLogin
         lblWelcome.AutoSize = True
         lblWelcome.BackColor = Color.Transparent
         lblWelcome.Cursor = Cursors.Hand
-        lblWelcome.Font = New Font("Verdana", 24.0F)
+        lblWelcome.Font = New Font("Verdana", 24F)
         lblWelcome.ForeColor = Color.White
         lblWelcome.Location = New Point(97, 137)
         lblWelcome.Name = "lblWelcome"
         lblWelcome.Size = New Size(262, 38)
         lblWelcome.TabIndex = 31
         lblWelcome.Text = "Welcome Back!"
-        ' 
-        ' btnAdmin
-        ' 
-        btnAdmin.Anchor = AnchorStyles.Top
-        btnAdmin.AutoSize = True
-        btnAdmin.BackColor = Color.Transparent
-        btnAdmin.Cursor = Cursors.Hand
-        btnAdmin.Font = New Font("Verdana", 13.0F)
-        btnAdmin.Location = New Point(308, 46)
-        btnAdmin.Name = "btnAdmin"
-        btnAdmin.Size = New Size(67, 22)
-        btnAdmin.TabIndex = 29
-        btnAdmin.Text = "Admin"
-        ' 
-        ' btnSuperAdmin
-        ' 
-        btnSuperAdmin.Anchor = AnchorStyles.Top
-        btnSuperAdmin.AutoSize = True
-        btnSuperAdmin.BackColor = Color.Transparent
-        btnSuperAdmin.Cursor = Cursors.Hand
-        btnSuperAdmin.Font = New Font("Verdana", 13.0F)
-        btnSuperAdmin.Location = New Point(118, 46)
-        btnSuperAdmin.Name = "btnSuperAdmin"
-        btnSuperAdmin.Size = New Size(126, 22)
-        btnSuperAdmin.TabIndex = 28
-        btnSuperAdmin.Text = "Super Admin"
-        ' 
-        ' btnSubscriber
-        ' 
-        btnSubscriber.Anchor = AnchorStyles.Top
-        btnSubscriber.AutoSize = True
-        btnSubscriber.BackColor = Color.Transparent
-        btnSubscriber.Cursor = Cursors.Hand
-        btnSubscriber.Font = New Font("Verdana", 13.0F)
-        btnSubscriber.Location = New Point(434, 46)
-        btnSubscriber.Name = "btnSubscriber"
-        btnSubscriber.Size = New Size(105, 22)
-        btnSubscriber.TabIndex = 26
-        btnSubscriber.Text = "Subscriber"
         ' 
         ' sparxLogo
         ' 
@@ -165,8 +117,6 @@ Partial Class sparxLogin
         ' 
         pnlLoginCard.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
         pnlLoginCard.BackColor = Color.White
-        pnlLoginCard.Controls.Add(LinkBtnLogin)
-        pnlLoginCard.Controls.Add(LblHAA)
         pnlLoginCard.Controls.Add(LinkBtnSignup)
         pnlLoginCard.Controls.Add(LblDHA)
         pnlLoginCard.Controls.Add(logo)
@@ -178,8 +128,6 @@ Partial Class sparxLogin
         pnlLoginCard.Controls.Add(lblPassword)
         pnlLoginCard.Controls.Add(pnlPassword)
         pnlLoginCard.Controls.Add(line)
-        pnlLoginCard.Controls.Add(lnkAdminContact)
-        pnlLoginCard.Controls.Add(lblAccess)
         pnlLoginCard.Controls.Add(pnlEmail)
         pnlLoginCard.Font = New Font("Verdana", 8.25F)
         pnlLoginCard.Location = New Point(95, 123)
@@ -187,37 +135,11 @@ Partial Class sparxLogin
         pnlLoginCard.Size = New Size(519, 588)
         pnlLoginCard.TabIndex = 25
         ' 
-        ' LinkBtnLogin
-        ' 
-        LinkBtnLogin.Anchor = AnchorStyles.Bottom
-        LinkBtnLogin.AutoSize = True
-        LinkBtnLogin.Font = New Font("Verdana", 11.0F)
-        LinkBtnLogin.LinkBehavior = LinkBehavior.NeverUnderline
-        LinkBtnLogin.Location = New Point(316, 551)
-        LinkBtnLogin.Name = "LinkBtnLogin"
-        LinkBtnLogin.Size = New Size(47, 18)
-        LinkBtnLogin.TabIndex = 23
-        LinkBtnLogin.TabStop = True
-        LinkBtnLogin.Text = "Login"
-        LinkBtnLogin.Visible = False
-        ' 
-        ' LblHAA
-        ' 
-        LblHAA.Anchor = AnchorStyles.Bottom
-        LblHAA.AutoSize = True
-        LblHAA.Font = New Font("Verdana", 11.0F)
-        LblHAA.Location = New Point(117, 551)
-        LblHAA.Name = "LblHAA"
-        LblHAA.Size = New Size(143, 18)
-        LblHAA.TabIndex = 22
-        LblHAA.Text = "Have An Account?"
-        LblHAA.Visible = False
-        ' 
         ' LinkBtnSignup
         ' 
         LinkBtnSignup.Anchor = AnchorStyles.Bottom
         LinkBtnSignup.AutoSize = True
-        LinkBtnSignup.Font = New Font("Verdana", 11.0F)
+        LinkBtnSignup.Font = New Font("Verdana", 11F)
         LinkBtnSignup.LinkBehavior = LinkBehavior.NeverUnderline
         LinkBtnSignup.Location = New Point(316, 551)
         LinkBtnSignup.Name = "LinkBtnSignup"
@@ -225,19 +147,19 @@ Partial Class sparxLogin
         LinkBtnSignup.TabIndex = 21
         LinkBtnSignup.TabStop = True
         LinkBtnSignup.Text = "Sign up"
-        LinkBtnSignup.Visible = False
+        LinkBtnSignup.Visible = True
         ' 
         ' LblDHA
         ' 
         LblDHA.Anchor = AnchorStyles.Bottom
         LblDHA.AutoSize = True
-        LblDHA.Font = New Font("Verdana", 11.0F)
+        LblDHA.Font = New Font("Verdana", 11F)
         LblDHA.Location = New Point(129, 551)
         LblDHA.Name = "LblDHA"
         LblDHA.Size = New Size(164, 18)
         LblDHA.TabIndex = 20
         LblDHA.Text = "Don't Have Account?"
-        LblDHA.Visible = False
+        LblDHA.Visible = True
         ' 
         ' logo
         ' 
@@ -254,7 +176,7 @@ Partial Class sparxLogin
         ' 
         lnkForgot.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Right
         lnkForgot.AutoSize = True
-        lnkForgot.Font = New Font("Verdana", 11.0F)
+        lnkForgot.Font = New Font("Verdana", 11F)
         lnkForgot.LinkBehavior = LinkBehavior.NeverUnderline
         lnkForgot.Location = New Point(355, 389)
         lnkForgot.Name = "lnkForgot"
@@ -268,7 +190,7 @@ Partial Class sparxLogin
         lblEmail.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
         lblEmail.AutoSize = True
         lblEmail.BackColor = Color.Transparent
-        lblEmail.Font = New Font("Verdana", 11.0F)
+        lblEmail.Font = New Font("Verdana", 11F)
         lblEmail.Location = New Point(23, 198)
         lblEmail.Name = "lblEmail"
         lblEmail.Size = New Size(111, 18)
@@ -283,14 +205,14 @@ Partial Class sparxLogin
         lblUserLevel.Name = "lblUserLevel"
         lblUserLevel.Size = New Size(513, 25)
         lblUserLevel.TabIndex = 1
-        lblUserLevel.Text = "Super Admin Login"
+        lblUserLevel.Text = "Sparx Login"
         lblUserLevel.TextAlign = ContentAlignment.MiddleCenter
         ' 
         ' chkRemember
         ' 
         chkRemember.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
         chkRemember.AutoSize = True
-        chkRemember.Font = New Font("Verdana", 11.0F)
+        chkRemember.Font = New Font("Verdana", 11F)
         chkRemember.Location = New Point(26, 388)
         chkRemember.Name = "chkRemember"
         chkRemember.Size = New Size(138, 22)
@@ -306,7 +228,7 @@ Partial Class sparxLogin
         btnSignup.Cursor = Cursors.Hand
         btnSignup.FlatAppearance.BorderSize = 0
         btnSignup.FlatStyle = FlatStyle.Flat
-        btnSignup.Font = New Font("Segoe UI", 12.0F)
+        btnSignup.Font = New Font("Segoe UI", 12F)
         btnSignup.ForeColor = Color.White
         btnSignup.Location = New Point(26, 468)
         btnSignup.Name = "btnSignup"
@@ -320,7 +242,7 @@ Partial Class sparxLogin
         lblPassword.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
         lblPassword.AutoSize = True
         lblPassword.BackColor = Color.Transparent
-        lblPassword.Font = New Font("Verdana", 11.0F)
+        lblPassword.Font = New Font("Verdana", 11F)
         lblPassword.Location = New Point(23, 296)
         lblPassword.Name = "lblPassword"
         lblPassword.Size = New Size(80, 18)
@@ -357,7 +279,7 @@ Partial Class sparxLogin
         txtPassword.BackColor = Color.WhiteSmoke
         txtPassword.BorderStyle = BorderStyle.None
         txtPassword.Cursor = Cursors.Hand
-        txtPassword.Font = New Font("Segoe UI", 12.0F)
+        txtPassword.Font = New Font("Segoe UI", 12F)
         txtPassword.Location = New Point(5, 10)
         txtPassword.Name = "txtPassword"
         txtPassword.PasswordChar = "●"c
@@ -375,30 +297,6 @@ Partial Class sparxLogin
         line.TabIndex = 16
         line.Text = "______________________________________________________________________"
         line.TextAlign = ContentAlignment.BottomCenter
-        ' 
-        ' lnkAdminContact
-        ' 
-        lnkAdminContact.Anchor = AnchorStyles.Bottom
-        lnkAdminContact.AutoSize = True
-        lnkAdminContact.Font = New Font("Verdana", 11.0F)
-        lnkAdminContact.LinkBehavior = LinkBehavior.NeverUnderline
-        lnkAdminContact.Location = New Point(235, 551)
-        lnkAdminContact.Name = "lnkAdminContact"
-        lnkAdminContact.Size = New Size(172, 18)
-        lnkAdminContact.TabIndex = 18
-        lnkAdminContact.TabStop = True
-        lnkAdminContact.Text = "Contact Administrator"
-        ' 
-        ' lblAccess
-        ' 
-        lblAccess.Anchor = AnchorStyles.Bottom
-        lblAccess.AutoSize = True
-        lblAccess.Font = New Font("Verdana", 11.0F)
-        lblAccess.Location = New Point(117, 551)
-        lblAccess.Name = "lblAccess"
-        lblAccess.Size = New Size(110, 18)
-        lblAccess.TabIndex = 17
-        lblAccess.Text = "Need Access?"
         ' 
         ' pnlEmail
         ' 
@@ -418,7 +316,7 @@ Partial Class sparxLogin
         txtEmail.BorderStyle = BorderStyle.None
         txtEmail.CharacterCasing = CharacterCasing.Lower
         txtEmail.Cursor = Cursors.Hand
-        txtEmail.Font = New Font("Segoe UI", 12.0F)
+        txtEmail.Font = New Font("Segoe UI", 12F)
         txtEmail.Location = New Point(8, 10)
         txtEmail.Name = "txtEmail"
         txtEmail.Size = New Size(460, 22)
@@ -426,7 +324,7 @@ Partial Class sparxLogin
         ' 
         ' sparxLogin
         ' 
-        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
+        AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1481, 796)
         Controls.Add(SplitContainer1)
@@ -434,7 +332,6 @@ Partial Class sparxLogin
         StartPosition = FormStartPosition.CenterScreen
         SplitContainer1.Panel1.ResumeLayout(False)
         SplitContainer1.Panel2.ResumeLayout(False)
-        SplitContainer1.Panel2.PerformLayout()
         CType(SplitContainer1, ComponentModel.ISupportInitialize).EndInit()
         SplitContainer1.ResumeLayout(False)
         pnlWelcome.ResumeLayout(False)
@@ -452,11 +349,8 @@ Partial Class sparxLogin
     End Sub
     Friend WithEvents pnlWelcomeCard As Panel
     Friend WithEvents SplitContainer1 As SplitContainer
-    Friend WithEvents btnSubscriber As Label
     Friend WithEvents pnlWelcome As PanelRound
     Friend WithEvents pnlLoginCard As PanelRound
-    Friend WithEvents lnkAdminContact As LinkLabel
-    Friend WithEvents lblAccess As Label
     Friend WithEvents pnlPassword As PanelRound
     Friend WithEvents picShowHide As PictureBox
     Friend WithEvents txtPassword As TextBox
@@ -469,14 +363,10 @@ Partial Class sparxLogin
     Friend WithEvents lblEmail As Label
     Friend WithEvents lblPassword As Label
     Friend WithEvents sparxLogo As PictureBox
-    Friend WithEvents btnAdmin As Label
-    Friend WithEvents btnSuperAdmin As Label
     Friend WithEvents lblWelcome As Label
     Friend WithEvents logo As PictureBox
     Friend WithEvents line As Label
     Friend WithEvents LinkBtnSignup As LinkLabel
     Friend WithEvents LblDHA As Label
-    Friend WithEvents LblHAA As Label
-    Friend WithEvents LinkBtnLogin As LinkLabel
 
 End Class

@@ -1,12 +1,12 @@
-﻿Imports System.Text
-Imports System.Text.RegularExpressions
-Imports System.Configuration
+﻿Imports System.Configuration
 Imports System.Data
 Imports System.Net.Http
+Imports System.Text
+Imports System.Text.RegularExpressions
 Imports System.Threading.Tasks
-
-Imports MySqlConnector
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports BCrypt.Net
+Imports MySqlConnector
 
 Public Class sparxLogin
     Private Const ROLE_SUPER_ADMIN As String = "Super Admin"
@@ -14,24 +14,62 @@ Public Class sparxLogin
     Private Const ROLE_SUBSCRIBER As String = "Subscriber"
     Private Const ROLE_CUSTOMER_SERVICE As String = "Customer Service"
 
-
-    Private selectedRole As String = ROLE_SUBSCRIBER
-
     Private Shared ReadOnly http As New HttpClient() With {.Timeout = TimeSpan.FromSeconds(30)}
     Private Const API_URL As String = "http://127.0.0.1/sparx-api/login.php"
     Private ForgotView As ForgotPassword
     Private forgotVerificationView As ForgotVerification
     Private subscriberSignUpControl As SubscriberSignup
 
-    Private ReadOnly CONNECTION_STRING As String =
-        ConfigurationManager.ConnectionStrings("SparxDb").ConnectionString
+    Private _connectionString As String = Nothing
+    Private ReadOnly Property CONNECTION_STRING As String
+        Get
+            If _connectionString Is Nothing AndAlso Not DesignMode Then
+                Try
+                    _connectionString = ConfigurationManager.ConnectionStrings("SparxDb").ConnectionString
+                Catch
+                    _connectionString = String.Empty
+                End Try
+            End If
+            Return If(_connectionString IsNot Nothing, _connectionString, String.Empty)
+        End Get
+    End Property
 
     Private Sub sparxLogin_Load(sender As Object, e As EventArgs) Handles MyBase.Load, MyBase.Resize
+        If DesignMode Then Return
         Dim ok = TestConnection()
+
+        ' Initialize picShowHide image
+        If picShowHide IsNot Nothing AndAlso picShowHide.Image Is Nothing Then
+            picShowHide.Image = My.Resources.eye_slashed
+        End If
+
+        ' Initialize logo image
+        If logo IsNot Nothing AndAlso logo.Image Is Nothing Then
+            Try
+                logo.Image = My.Resources.Resources.SparxLogo2
+            Catch
+                ' Resource not found, skip
+            End Try
+        End If
+
+        ' Initialize background image
+        If SplitContainer1 IsNot Nothing AndAlso SplitContainer1.Panel1.BackgroundImage Is Nothing Then
+            Try
+                SplitContainer1.Panel1.BackgroundImage = My.Resources.Resources.SparxBackground
+            Catch
+                ' Resource not found, skip
+            End Try
+        End If
+
         If subscriberSignUpControl Is Nothing Then
             subscriberSignUpControl = New SubscriberSignup()
             subscriberSignUpControl.Dock = DockStyle.Fill
             pnlLoginCard.Controls.Add(subscriberSignUpControl)
+            subscriberSignUpControl.Visible = False
+        End If
+
+        ' Default to login view – keep signup hidden until user explicitly requests it.
+        If subscriberSignUpControl IsNot Nothing Then
             subscriberSignUpControl.Visible = False
         End If
     End Sub
@@ -61,23 +99,8 @@ Public Class sparxLogin
     Private Sub pnlPassword_Paint(sender As Object, e As PaintEventArgs) Handles pnlPassword.Paint
     End Sub
 
-    Private Sub btnSuperAdmin_Click(sender As Object, e As EventArgs) Handles btnSuperAdmin.Click
-        selectedRole = ROLE_SUPER_ADMIN
-    End Sub
 
-    Private Sub btnAdmin_Click(sender As Object, e As EventArgs) Handles btnAdmin.Click
-        selectedRole = ROLE_ADMIN
-    End Sub
-
-    Private Sub btnSubscriber_Click(sender As Object, e As EventArgs) Handles btnSubscriber.Click
-        selectedRole = ROLE_SUBSCRIBER
-    End Sub
-
-
-    Private Sub UserRole_Click(sender As Object, e As EventArgs) Handles btnSubscriber.Click, btnAdmin.Click, btnSuperAdmin.Click
-        btnSuperAdmin.Font = New Font(btnSuperAdmin.Font, FontStyle.Regular)
-        btnAdmin.Font = New Font(btnAdmin.Font, FontStyle.Regular)
-        btnSubscriber.Font = New Font(btnSubscriber.Font, FontStyle.Regular)
+    Private Sub UserRole_Click(sender As Object, e As EventArgs)
 
         Dim clickedLabel = CType(sender, Label)
         clickedLabel.Font = New Font(clickedLabel.Font, FontStyle.Bold)
@@ -90,16 +113,18 @@ Public Class sparxLogin
         ' If we were in any forgot password flow, remove those overlays and restore login inputs
         Dim overlays As New List(Of Control)
         For Each c As Control In pnlLoginCard.Controls
-            If (c.GetType().Name = "ForgotPassword") OrElse (c.GetType().Name = "ForgotVerification") OrElse (c.GetType().Name = "NewPassword") OrElse (c.GetType().Name = "forgotPasswordView") Then
+            If c.GetType.Name = "ForgotPassword" OrElse c.GetType.Name = "ForgotVerification" OrElse c.GetType.Name = "NewPassword" OrElse c.GetType.Name = "forgotPasswordView" Then
                 overlays.Add(c)
             End If
         Next
-        For Each c As Control In overlays
+        For Each c In overlays
             pnlLoginCard.Controls.Remove(c)
         Next
 
-        lblEmail.Visible = True
-        lblPassword.Visible = True
+        If ForgotView IsNot Nothing Then
+            ForgotView.Visible = False
+        End If
+
         txtEmail.Visible = True
         txtPassword.Visible = True
         pnlEmail.Visible = True
@@ -107,28 +132,7 @@ Public Class sparxLogin
         chkRemember.Visible = True
         lnkForgot.Visible = True
 
-        LblHAA.Visible = False
-        LinkBtnLogin.Visible = False
 
-        If clickedLabel Is btnSubscriber Then
-            LblDHA.Visible = True
-            LinkBtnSignup.Visible = True
-            lblAccess.Visible = False
-            lnkAdminContact.Visible = False
-            selectedRole = ROLE_SUBSCRIBER
-        ElseIf clickedLabel Is btnAdmin Then
-            LblDHA.Visible = False
-            LinkBtnSignup.Visible = False
-            lblAccess.Visible = True
-            lnkAdminContact.Visible = True
-            selectedRole = ROLE_ADMIN
-        Else
-            LblDHA.Visible = False
-            LinkBtnSignup.Visible = False
-            lblAccess.Visible = True
-            lnkAdminContact.Visible = True
-            selectedRole = ROLE_SUPER_ADMIN
-        End If
     End Sub
 
     Private Sub LinkBtnSignup_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkBtnSignup.LinkClicked
@@ -146,39 +150,13 @@ Public Class sparxLogin
         chkRemember.Visible = False
         lnkForgot.Visible = False
 
-        ' Show back-to-login
-        LblHAA.Text = "Already Have Account?"
-        LinkBtnLogin.Text = "Log In"
-        LblHAA.Visible = True
-        LinkBtnLogin.Visible = True
+
 
         ' Show the sign-up view
         subscriberSignUpControl.Visible = True
         subscriberSignUpControl.BringToFront()
     End Sub
 
-    Private Sub LinkBtnLogin_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkBtnLogin.LinkClicked
-        ' Return from Sign Up / Forgot flows to the default login view
-        If subscriberSignUpControl IsNot Nothing Then
-            subscriberSignUpControl.Visible = False
-        End If
-
-        lblWelcome.Text = "Welcome Back!"
-        btnSignup.Text = "Sign In"
-
-        ' Show login inputs again
-        lblEmail.Visible = True
-        lblPassword.Visible = True
-        txtEmail.Visible = True
-        txtPassword.Visible = True
-        pnlEmail.Visible = True
-        pnlPassword.Visible = True
-        chkRemember.Visible = True
-        lnkForgot.Visible = True
-
-        LblHAA.Visible = False
-        LinkBtnLogin.Visible = False
-    End Sub
 
     Private Sub lblUserLevel_Click(sender As Object, e As EventArgs) Handles lblUserLevel.Click
     End Sub
@@ -229,18 +207,15 @@ Public Class sparxLogin
             MessageBox.Show("Please enter a valid email address.", "Invalid Email", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
-		If String.IsNullOrEmpty(selectedRole) Then
-			MessageBox.Show("Please select a user role.", "Missing Role", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-			Exit Sub
-		End If
-		If btnSignup.Text = "Sign Up" Then
+
+        If btnSignup.Text = "Sign Up" Then
+            ' Existing Sign Up logic remains unchanged
             Dim form As New Dictionary(Of String, String) From {
-                {"action", "signup"},
-                {"email", email},
-                {"username", email},
-                {"password", password},
-                {"role", selectedRole}
-            }
+            {"action", "signup"},
+            {"email", email},
+            {"username", email},
+            {"password", password}
+        }
             Dim content = New FormUrlEncodedContent(form)
 
             Try
@@ -254,8 +229,21 @@ Public Class sparxLogin
 
                 If responseString.Contains("""status"":""success""") OrElse responseString.Contains("""success"":true") Then
                     MessageBox.Show("Sign up successful! Please log in.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                    LinkBtnLogin_LinkClicked(LinkBtnLogin, Nothing)
-                    txtEmail.Text = ""
+                    ' Return to login view
+                    If subscriberSignUpControl IsNot Nothing Then
+                        subscriberSignUpControl.Visible = False
+                    End If
+                    lblWelcome.Text = "Welcome Back!"
+                    btnSignup.Text = "Sign In"
+                    lblEmail.Visible = True
+                    lblPassword.Visible = True
+                    txtEmail.Visible = True
+                    txtPassword.Visible = True
+                    pnlEmail.Visible = True
+                    pnlPassword.Visible = True
+                    chkRemember.Visible = True
+                    lnkForgot.Visible = True
+                    txtEmail.Text = email ' Keep email for convenience
                     txtPassword.Text = ""
                 Else
                     Dim messageMatch As Match = Regex.Match(responseString, """message"":""([^""]+)""")
@@ -265,117 +253,114 @@ Public Class sparxLogin
             Catch ex As Exception
                 MessageBox.Show("Error connecting to server: " & ex.Message & " (Check XAMPP and URL: " & API_URL & ")", "Network Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
-        Else
-            If selectedRole = ROLE_SUBSCRIBER Then
-                ' Direct MySQL query for subscribers
-                If String.IsNullOrEmpty(email) OrElse String.IsNullOrEmpty(password) Then
-                    MessageBox.Show("Please enter email and password.", "Missing Info", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                    Exit Sub
+
+            ' --- PATH 2: Handle Sign In (Unified Login) ---
+        Else ' btnSignup.Text = "Sign In"
+
+            ' --- 2a: Try API Login (for Staff Roles) ---
+            Dim formLogin As New Dictionary(Of String, String) From {
+            {"action", "login"},
+            {"email", email},
+            {"username", email},
+            {"password", password}}
+
+            Dim contentLogin = New FormUrlEncodedContent(formLogin)
+
+            Try
+                Dim resp = Await http.PostAsync(API_URL, contentLogin)
+                Dim responseString = Await resp.Content.ReadAsStringAsync()
+
+                If resp.IsSuccessStatusCode AndAlso (responseString.Contains("""status"":""success""") OrElse responseString.Contains("""success"":true")) Then
+
+                    ' API Login Success! Determine role and navigate.
+                    Dim roleMatch As Match = Regex.Match(responseString, """user_role"":""([^""]+)""")
+                    Dim userRole As String = If(roleMatch.Success, roleMatch.Groups(1).Value, "User")
+
+                    MessageBox.Show($"Staff Login successful! Role: {userRole}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                    Select Case userRole
+                        Case ROLE_SUPER_ADMIN
+                            Dim dash As New dashboardSuperAdmin()
+                            Me.Hide()
+                            dash.Show()
+                            AddHandler dash.FormClosed, Sub() Me.Close()
+
+                        Case ROLE_ADMIN
+                            Dim adminPortal As New Tabs()
+                            Me.Hide()
+                            adminPortal.Show()
+                            AddHandler adminPortal.FormClosed, Sub() Me.Close()
+
+                        Case Else
+                            ' Handle other staff/unknown roles here if necessary
+                            MessageBox.Show($"Unknown Staff Role ({userRole}) logged in.", "Login Success", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    End Select
+                    Exit Sub ' IMPORTANT: Exit after successful API login and navigation.
                 End If
 
-                Try
-                    Using conn As New MySqlConnection(CONNECTION_STRING)
-                        conn.Open()
+                ' If API failed, it falls through to the next Try block (Local DB check).
 
-                        ' Query customer table by email
-                        Dim query As String = "SELECT customer_id, first_name, last_name, password_hash, account_status FROM customer WHERE email_address = @email"
-                        Using cmd As New MySqlCommand(query, conn)
-                            cmd.Parameters.AddWithValue("@email", email)
-                            Using reader As MySqlDataReader = cmd.ExecuteReader()
-                                If reader.Read() Then
-                                    Dim storedHash As String = reader("password_hash").ToString()
-                                    Dim customerId As Integer = Convert.ToInt32(reader("customer_id"))
-                                    Dim firstName As String = reader("first_name").ToString()
-                                    Dim lastName As String = reader("last_name").ToString()
-                                    Dim status As String = reader("account_status").ToString()
+            Catch ex As Exception
+                ' Log network error but continue to try local DB check
+                Console.WriteLine("API Network Error or Server Unreachable. Trying local DB...")
+            End Try
 
-                                    ' Verify password
-                                    If BCrypt.Net.BCrypt.Verify(password, storedHash) Then
-                                        If status = "Active" Then
-                                            MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                                            ' Navigate to subscriber dashboard (e.g., subscriberview)
-                                            Dim subView As New SidePanel()
-                                            subView.CurrentCustomerId = customerId
-                                            subView.CurrentFirstName = firstName
-                                            subView.CurrentLastName = lastName
-                                            subView.CurrentEmail = email
-                                            Me.Hide()
-                                            subView.Show()
-                                            AddHandler subView.FormClosed, AddressOf OnSubViewClosing
-                                        Else
-                                            MessageBox.Show("Account is not active.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                                        End If
-                                    Else
-                                        MessageBox.Show("Invalid password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                                    End If
-                                Else
-                                    MessageBox.Show("No account found with this email.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                                End If
-                            End Using
-                        End Using
-                    End Using
-                Catch ex As Exception
-                    MessageBox.Show("Database error: " & ex.Message, "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                End Try
-            Else
-                ' Keep existing API logic for other roles (Admin, Super Admin)
-                Dim form As New Dictionary(Of String, String) From {
-                    {"action", "login"},
-                    {"email", email},
-                    {"username", email},
-                    {"password", password},
-                    {"role", selectedRole}
-                }
-                Dim content = New FormUrlEncodedContent(form)
+            ' --- 2b: Try Direct MySQL Login (for Subscriber Role) ---
+            Try
+                Using conn As New MySqlConnection(CONNECTION_STRING)
+                    conn.Open()
 
-                Try
-                    Dim resp = Await http.PostAsync(API_URL, content)
-                    Dim responseString = Await resp.Content.ReadAsStringAsync()
-
-                    If Not resp.IsSuccessStatusCode Then
-                        MessageBox.Show("Server returned " & CInt(resp.StatusCode) & ": " & resp.ReasonPhrase, "Server Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Dim passwordColumn As String = ResolvePasswordColumn(conn, "customer")
+                    If String.IsNullOrEmpty(passwordColumn) Then
+                        MessageBox.Show("System Error: Missing password column in customer table.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
                         Exit Sub
                     End If
 
-                    If responseString.Contains("""status"":""success""") OrElse responseString.Contains("""success"":true") Then
-                        Dim roleMatch As Match = Regex.Match(responseString, """user_role"":""([^""]+)""")
-                        Dim userRole As String = If(roleMatch.Success, roleMatch.Groups(1).Value, "User")
+                    Dim query As String = $"SELECT customer_id, first_name, last_name, {passwordColumn}, account_status FROM customer WHERE email_address = @email"
+                    Using cmd As New MySqlCommand(query, conn)
+                        cmd.Parameters.AddWithValue("@email", email)
+                        Using reader As MySqlDataReader = cmd.ExecuteReader()
+                            If reader.Read() Then
+                                Dim storedPassword As String = reader(passwordColumn).ToString()
+                                Dim customerId As Integer = Convert.ToInt32(reader("customer_id"))
+                                Dim firstName As String = reader("first_name").ToString()
+                                Dim lastName As String = reader("last_name").ToString()
+                                Dim status As String = reader("account_status").ToString()
 
-                        Select Case userRole
-                            Case ROLE_SUPER_ADMIN
-                                Dim dash As New dashboardSuperAdmin()
-                                ' dash.CurrentUserName = email   ' if you add this property
-                                ' dash.CurrentUserRole = userRole
-                                Me.Hide()
-                                dash.Show()
-                                AddHandler dash.FormClosed, Sub() Me.Close()
+                                If VerifyPasswordValue(password, storedPassword) Then ' Verify password hash
+                                    If status = "Active" Then
+                                        MessageBox.Show("Subscriber Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                                        Dim subView As New SidePanel()
+                                        subView.CurrentCustomerId = customerId
+                                        subView.CurrentFirstName = firstName
+                                        subView.CurrentLastName = lastName
+                                        subView.CurrentEmail = email
+                                        Me.Hide()
+                                        subView.Show()
+                                        AddHandler subView.FormClosed, AddressOf OnSubViewClosing
+                                        Exit Sub ' IMPORTANT: Exit after successful DB login and navigation.
+                                    Else
+                                        MessageBox.Show("Account is not active.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                        Exit Sub
+                                    End If
+                                End If
+                            End If
+                        End Using
+                    End Using
+                End Using
 
-                            Case ROLE_ADMIN
-                                ' Dim f As New AdminDashboard() : Me.Hide() : f.Show()
-                                ' AddHandler f.FormClosed, Sub() Me.Close()
+            Catch ex As Exception
+                MessageBox.Show("Database error during subscriber login: " & ex.Message, "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
+            End Try
 
-                            Case ROLE_CUSTOMER_SERVICE
-                                ' Dim f As New CustomerServiceDashboard() : Me.Hide() : f.Show()
-                                ' AddHandler f.FormClosed, Sub() Me.Close()
+            ' --- Final Failure Message ---
+            ' If execution reaches here, neither API nor DB login succeeded.
+            MessageBox.Show("Invalid email or password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
 
-                            Case Else
-                                ' Dim f As New SubscriberHome() : Me.Hide() : f.Show()
-                                ' AddHandler f.FormClosed, Sub() Me.Close()
-                        End Select
-                    Else
-                        Dim messageMatch As Match = Regex.Match(responseString, """message"":""([^""]+)""")
-                        Dim errorMessage As String = If(messageMatch.Success, messageMatch.Groups(1).Value, "Login failed.")
-                        MessageBox.Show(errorMessage, "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                    End If
-                Catch ex As Exception
-                    MessageBox.Show("Error connecting to server: " & ex.Message & " (Check XAMPP is running and URL is correct: " & API_URL & ")", "Network Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                End Try
-            End If
-        End If
+        End If ' End of Sign Up / Sign In block
     End Sub
 
-    Private Sub SplitContainer1_Panel2_Paint(sender As Object, e As PaintEventArgs) Handles SplitContainer1.Panel2.Paint
-    End Sub
 
     Private Sub pnlLoginCard_Paint(sender As Object, e As PaintEventArgs) Handles pnlLoginCard.Paint
 
@@ -388,4 +373,44 @@ Public Class sparxLogin
     Private Sub OnSubViewClosing(sender As Object, e As FormClosedEventArgs)
         Me.Close()
     End Sub
+
+    Private Sub SplitContainer1_Panel2_Paint(sender As Object, e As PaintEventArgs) Handles SplitContainer1.Panel2.Paint
+
+    End Sub
+
+    Private Sub SplitContainer1_Panel1_Paint(sender As Object, e As PaintEventArgs) Handles SplitContainer1.Panel1.Paint
+
+    End Sub
+
+    Private Function ResolvePasswordColumn(conn As MySqlConnection, tableName As String) As String
+        Try
+            Dim query As String = "SHOW COLUMNS FROM " & tableName & " WHERE Field LIKE '%password%'"
+            Using cmd As New MySqlCommand(query, conn)
+                Using reader As MySqlDataReader = cmd.ExecuteReader()
+                    If reader.Read() Then
+                        Return reader("Field").ToString()
+                    End If
+                End Using
+            End Using
+        Catch ex As Exception
+            ' Fallback to common column names
+            Return "password"
+        End Try
+        Return "password"
+    End Function
+
+    Private Function VerifyPasswordValue(inputPassword As String, storedPassword As String) As Boolean
+        Try
+            ' Try BCrypt verification first
+            If storedPassword.StartsWith("$2") Then
+                Return BCrypt.Net.BCrypt.Verify(inputPassword, storedPassword)
+            End If
+            ' Fallback to plain text comparison (not recommended for production)
+            Return inputPassword = storedPassword
+        Catch
+            ' If BCrypt fails, try plain text
+            Return inputPassword = storedPassword
+        End Try
+    End Function
+
 End Class

@@ -262,7 +262,7 @@ Public Class SubscriberSignup
         Me.Visible = False
         Dim methodInfo = parentForm.GetType().GetMethod("UserRole_Click", Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic)
         If methodInfo IsNot Nothing Then
-            methodInfo.Invoke(parentForm, New Object() {parentForm.btnSubscriber, EventArgs.Empty})
+            methodInfo.Invoke(parentForm, New Object() {parentForm, EventArgs.Empty})
         End If
     End Sub
 End Class
